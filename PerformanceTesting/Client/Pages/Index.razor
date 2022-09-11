@@ -1,0 +1,75 @@
+﻿@page "/"
+
+@using PerformanceTesting.Shared
+@using SnowStorm.Extensions
+
+@inject HttpClient Http
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+@if (Message.HasValue())
+{
+    <h2>@Message</h2>
+}
+
+@if (Orders == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>EmployeeID</th>
+                <th>CustomerID</th>
+                <th>Freight</th>
+                <th>OrderDate</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Orders)
+            {
+                <tr>
+                    <td>@o.EmployeeID</td>
+                    <td>@o.CustomerID</td>
+                    <td>@o.Freight</td>
+                    <td>@o.OrderDate.ToStringSortableDateTime()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+
+@code {
+    private OrderDto[]? Orders;
+    private string Message { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            Message = "";
+            Orders = await Http.GetFromJsonAsync<OrderDto[]>("api/orders");
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+            Console.WriteLine($"EXCEPTION!: {ex.Message}");
+            Console.WriteLine(ex);
+        }
+    }
+
+
+}
+
