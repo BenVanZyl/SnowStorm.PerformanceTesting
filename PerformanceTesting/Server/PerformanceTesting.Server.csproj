@@ -18,9 +18,5 @@
     <ProjectReference Include="..\Shared\PerformanceTesting.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\Commands\" />
-  </ItemGroup>
-
 
 </Project>

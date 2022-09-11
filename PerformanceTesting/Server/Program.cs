@@ -29,7 +29,7 @@ try
     connectionString.Append("Timeout=35;");
     connectionString.Append("Connection Lifetime=1;");  
     //connectionString.Append("ConnectRetryCount=5;ConnectRetryInterval=5");
-    builder.Services.AddSnowStorm(typeof(Program).Assembly, new MappingProfiles(), connectionString.ToString());
+    builder.Services.AddSnowStorm(connectionString.ToString());
 
     var app = builder.Build();
 

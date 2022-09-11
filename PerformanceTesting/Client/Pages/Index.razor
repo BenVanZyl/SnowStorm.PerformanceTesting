@@ -13,34 +13,48 @@
 {
     <h2>@Message</h2>
 }
-
 @if (Orders == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>EmployeeID</th>
-                <th>CustomerID</th>
-                <th>Freight</th>
-                <th>OrderDate</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var o in Orders)
-            {
-                <tr>
-                    <td>@o.EmployeeID</td>
-                    <td>@o.CustomerID</td>
-                    <td>@o.Freight</td>
-                    <td>@o.OrderDate.ToStringSortableDateTime()</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col-6">
+            <h3>Orders</h3>
+        </div>
+        <div class="col-6 justify-content-end" style="margin-bottom: 10px">
+            <button class="btn btn-primary" @onclick="PostData">Post</button>
+            <button class="btn btn-primary" @onclick="LoadData">Reload</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>EmployeeID</th>
+                        <th>CustomerID</th>
+                        <th>Freight</th>
+                        <th>OrderDate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Orders)
+                    {
+                        <tr>
+                            <td>@o.EmployeeID</td>
+                            <td>@o.CustomerID</td>
+                            <td>@o.Freight</td>
+                            <td>@o.OrderDate.ToStringSortableDateTime()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 }
 
 
@@ -49,6 +63,9 @@ else
 @code {
     private OrderDto[]? Orders;
     private string Message { get; set; } = "";
+
+    private bool IsLoading { get; set; } = false;
+    private string IsDisabled => IsLoading ? "Disabled" : "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,6 +76,7 @@ else
     {
         try
         {
+            IsLoading = true;
             Message = "";
             Orders = await Http.GetFromJsonAsync<OrderDto[]>("api/orders");
         }
@@ -67,6 +85,34 @@ else
             Message = ex.Message;
             Console.WriteLine($"EXCEPTION!: {ex.Message}");
             Console.WriteLine(ex);
+        }
+        finally 
+        {
+            if (!Message.HasValue())
+                Message = "Load Data done.";
+            IsLoading = false;
+        }
+    }
+
+    private async Task PostData()
+    {
+        try
+        {
+            IsLoading = true;
+            Message = "";
+            var content = new string[3] { "A", "B", "C" };
+            var response = await Http.PostAsJsonAsync("api/orders", content);
+            Message = $"Post data done. Response.StatusCode='{response.StatusCode}'";
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+            Console.WriteLine($"EXCEPTION!: {ex.Message}");
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 

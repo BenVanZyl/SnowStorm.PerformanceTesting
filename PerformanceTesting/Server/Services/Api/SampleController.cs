@@ -6,19 +6,23 @@ using Serilog;
 using Microsoft.EntityFrameworkCore;
 using SnowStorm.Domain;
 using PerformanceTesting.Server.Services.Data;
+using MediatR;
+using PerformanceTesting.Server.Services.Commands;
 
 namespace PerformanceTesting.Server.Services.Api
 {
     public class SampleController : Controller
     {
-        public SampleController(IQueryExecutor executor, AppDbContext dbContext)
+        public SampleController(IQueryExecutor executor, AppDbContext dbContext, IMediator mediator)
         {
             _executor = executor;
             _dbContext = dbContext;
+            _mediator = mediator;   
         }
 
         private readonly AppDbContext _dbContext;
         private readonly IQueryExecutor _executor;
+        private readonly IMediator _mediator;
 
         [HttpGet]
         [Route("api/samples")]
@@ -87,11 +91,11 @@ namespace PerformanceTesting.Server.Services.Api
         [HttpPost]
         [Route("api/orders")]
         //[ValidateAntiForgeryToken()]
-        public async Task<IActionResult> PostOrders()
+        public async Task<IActionResult> PostOrders(string[] content)
         {
             try
             {
-                var results = await _executor.Get(new GetOrdersQuery());
+                var results = await _mediator.Send(new SaveSampleCommand());
                 return Ok(results);
             }
             catch (System.Exception ex)
