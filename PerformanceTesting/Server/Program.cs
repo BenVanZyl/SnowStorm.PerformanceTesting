@@ -24,14 +24,15 @@ try
 
     builder.Services.AddHttpContextAccessor();
 
+    int poolSize = 32;
     StringBuilder connectionString = new();
     connectionString.Append("Server=(localdb)\\mssqllocaldb;Database=Northwind;Trusted_Connection=True;MultipleActiveResultSets=true;");
     connectionString.Append("Enlist=true;");
-    connectionString.Append("Pooling=true;Min Pool Size=1;Max Pool Size=128;");
+    connectionString.Append($"Pooling=true;Min Pool Size=1;Max Pool Size={poolSize*2};");
     connectionString.Append("Timeout=35;");
     connectionString.Append("Connection Lifetime=1;");  
     //connectionString.Append("ConnectRetryCount=5;ConnectRetryInterval=5");
-    builder.Services.AddSnowStorm(connectionString.ToString());
+    builder.Services.AddSnowStorm(connectionString.ToString(), poolSize: poolSize);
 
     var app = builder.Build();
 
