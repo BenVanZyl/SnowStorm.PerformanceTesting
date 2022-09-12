@@ -8,21 +8,46 @@ using SnowStorm.Domain;
 using PerformanceTesting.Server.Services.Data;
 using MediatR;
 using PerformanceTesting.Server.Services.Commands;
+using SnowStorm;
+using SnowStorm.Extensions;
 
 namespace PerformanceTesting.Server.Services.Api
 {
     public class SampleController : Controller
     {
-        public SampleController(IQueryExecutor executor, AppDbContext dbContext, IMediator mediator)
+        public SampleController(IQueryExecutor executor, AppDbContext dbContext, IMediator mediator, ICurrentUserInfo currentUser)
         {
             _executor = executor;
             _dbContext = dbContext;
             _mediator = mediator;   
+            _currentUser = currentUser;
         }
 
         private readonly AppDbContext _dbContext;
         private readonly IQueryExecutor _executor;
         private readonly IMediator _mediator;
+        private readonly ICurrentUserInfo _currentUser;
+
+        [HttpGet]
+        [Route("api/samples/users/current")]
+        //[ValidateAntiForgeryToken()]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                if (_currentUser.UserName.HasValue())
+                    return Ok(_currentUser.UserName);
+                else
+                    return NotFound();
+            }
+            catch (System.Exception ex)
+            {
+
+                Log.Error(ex, "GetCurrentUser ERROR");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
 
         [HttpGet]
         [Route("api/samples")]

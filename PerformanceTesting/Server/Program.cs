@@ -22,6 +22,8 @@ try
     builder.Services.AddControllersWithViews();
     builder.Services.AddRazorPages();
 
+    builder.Services.AddHttpContextAccessor();
+
     StringBuilder connectionString = new();
     connectionString.Append("Server=(localdb)\\mssqllocaldb;Database=Northwind;Trusted_Connection=True;MultipleActiveResultSets=true;");
     connectionString.Append("Enlist=true;");
