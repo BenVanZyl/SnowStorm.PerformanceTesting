@@ -1,11 +1,7 @@
-using JkaPerth.Web.Services.Infrastructure;
-using Microsoft.AspNetCore.ResponseCompression;
-using Serilog.Events;
 using Serilog;
+using Serilog.Events;
 using SnowStorm;
-using System;
 using System.Text;
-
 
 Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
@@ -32,7 +28,8 @@ try
     connectionString.Append("Timeout=35;");
     connectionString.Append("Connection Lifetime=1;");  
     //connectionString.Append("ConnectRetryCount=5;ConnectRetryInterval=5");
-    builder.Services.AddSnowStorm(connectionString.ToString(), poolSize: poolSize);
+
+    builder.Services.AddSnowStorm("PerformanceTesting.Server", connectionString.ToString(), poolSize: poolSize);
 
     var app = builder.Build();
 
