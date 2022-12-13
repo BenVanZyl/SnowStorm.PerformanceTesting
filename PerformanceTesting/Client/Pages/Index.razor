@@ -20,7 +20,7 @@
 else
 {
     <div class="row">
-        <div class="col-6">
+        <div class="col-12">
             <h3>Orders</h3>
         </div>
         <div class="col-6 justify-content-end" style="margin-bottom: 10px">
@@ -34,20 +34,24 @@ else
             <table class="table">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>EmployeeID</th>
                         <th>CustomerID</th>
                         <th>Freight</th>
                         <th>OrderDate</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var o in Orders)
                     {
                         <tr>
+                            <td>@o.Id</td>
                             <td>@o.EmployeeID</td>
                             <td>@o.CustomerID</td>
                             <td>@o.Freight</td>
                             <td>@o.OrderDate.ToStringSortableDateTime()</td>
+                            <td>@(async () => await GetRow(o.Id))</td>
                         </tr>
                     }
                 </tbody>
@@ -87,6 +91,33 @@ else
             Console.WriteLine(ex);
         }
         finally 
+        {
+            if (!Message.HasValue())
+                Message = "Load Data done.";
+            IsLoading = false;
+        }
+    }
+
+    private async Task<string> GetRow(int id)
+    {
+        try
+        {
+            IsLoading = true;
+            Console.WriteLine($"GetRow({id}) ...");
+            Message = "";
+            var order = await Http.GetFromJsonAsync<OrderDto>($"api/orders/{id}");
+            var v = order.ShipRegion.HasValue() ? order.ShipRegion : "?";
+            Console.WriteLine($"GetRow({id})==> {v}");
+            return v;
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+            Console.WriteLine($"EXCEPTION!: {ex.Message}");
+            Console.WriteLine(ex);
+            return "--";
+        }
+        finally
         {
             if (!Message.HasValue())
                 Message = "Load Data done.";
