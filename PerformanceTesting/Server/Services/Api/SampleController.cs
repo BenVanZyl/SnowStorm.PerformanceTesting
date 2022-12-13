@@ -15,18 +15,18 @@ namespace PerformanceTesting.Server.Services.Api
 {
     public class SampleController : Controller
     {
-        public SampleController(IQueryExecutor executor, AppDbContext dbContext, IMediator mediator, ICurrentUserInfo currentUser)
+        public SampleController(IQueryExecutor executor, AppDbContext dbContext, IMediator mediator) //, ICurrentUserInfo currentUser)
         {
             _executor = executor;
             _dbContext = dbContext;
             _mediator = mediator;   
-            _currentUser = currentUser;
+            //_currentUser = currentUser;
         }
 
         private readonly AppDbContext _dbContext;
         private readonly IQueryExecutor _executor;
         private readonly IMediator _mediator;
-        private readonly ICurrentUserInfo _currentUser;
+        //private readonly ICurrentUserInfo _currentUser;
 
         [HttpGet]
         [Route("api/samples/users/current")]
@@ -35,9 +35,9 @@ namespace PerformanceTesting.Server.Services.Api
         {
             try
             {
-                if (_currentUser.UserName.HasValue())
-                    return Ok(_currentUser.UserName);
-                else
+                //if (_currentUser.UserName.HasValue())
+                //    return Ok(_currentUser.UserName);
+                //else
                     return NotFound();
             }
             catch (System.Exception ex)
@@ -87,6 +87,25 @@ namespace PerformanceTesting.Server.Services.Api
             {
 
                 Log.Error(ex, "GetOrders ERROR");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
+        }
+
+        [HttpGet]
+        [Route("api/orders/{id}")]
+        //[ValidateAntiForgeryToken()]
+        public async Task<IActionResult> GetOrder(int id)
+        {
+            try
+            {
+                var results = await _executor.Get(new GetOrderQuery(id));
+                return Ok(results);
+            }
+            catch (System.Exception ex)
+            {
+
+                Log.Error(ex, $"GetOrder ERROR. id='{id}'. ");
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
 

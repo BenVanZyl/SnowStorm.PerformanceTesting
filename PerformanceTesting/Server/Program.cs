@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
 using SnowStorm;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 using System.Text;
 
 Log.Logger = new LoggerConfiguration()
@@ -24,12 +28,15 @@ try
     StringBuilder connectionString = new();
     connectionString.Append("Server=(localdb)\\mssqllocaldb;Database=Northwind;Trusted_Connection=True;MultipleActiveResultSets=true;");
     connectionString.Append("Enlist=true;");
-    connectionString.Append($"Pooling=true;Min Pool Size=1;Max Pool Size={poolSize*2};");
+    connectionString.Append($"Pooling=true;Min Pool Size=1;Max Pool Size={poolSize};");
     connectionString.Append("Timeout=35;");
-    connectionString.Append("Connection Lifetime=1;");  
+    connectionString.Append("Connection Lifetime=1;");
     //connectionString.Append("ConnectRetryCount=5;ConnectRetryInterval=5");
 
     builder.Services.AddSnowStorm("PerformanceTesting.Server", connectionString.ToString(), poolSize: poolSize);
+
+    //swagger
+    builder.Services.AddSwaggerGen();
 
     var app = builder.Build();
 
@@ -55,6 +62,17 @@ try
     app.MapRazorPages();
     app.MapControllers();
     app.MapFallbackToFile("index.html");
+
+    // Enable middleware to serve generated Swagger as a JSON endpoint.
+    app.UseSwagger();
+
+    // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+    // specifying the Swagger JSON endpoint.
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "SnowStorm Performance Testing API V1");
+    });
+
 
     app.Run();
 
